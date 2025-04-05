@@ -5,7 +5,9 @@ import '../utils/constants.dart';
 import '../utils/theme.dart';
 import '../services/ingredient_analyzer_service.dart';
 import '../services/firebase_service.dart';
+import '../services/firebase_config_service.dart';
 import 'home_screen.dart';
+import 'firebase_setup_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -21,6 +23,7 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _scaleAnimation;
   bool _initialized = false;
   String _statusMessage = 'Initializing services...';
+  bool _hasFirebaseError = false;
 
   @override
   void initState() {
@@ -57,21 +60,60 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _initializeServices() async {
     try {
+      // Get the Firebase config service
+      final firebaseConfig =
+          Provider.of<FirebaseConfigService>(context, listen: false);
+
       // Update status message
-      _updateStatus('Checking Firebase status...');
+      _updateStatus('Checking Firebase configuration...');
+
+      // Check if Firebase is initialized
+      if (!firebaseConfig.isInitialized) {
+        _updateStatus('Firebase is not configured properly');
+        _hasFirebaseError = true;
+
+        // Initialize ingredient database anyway so the app can function in limited mode
+        _updateStatus('Loading ingredient database...');
+        try {
+          await Provider.of<IngredientAnalyzerService>(context, listen: false)
+              .initialize()
+              .timeout(const Duration(seconds: 5));
+          _updateStatus('Ingredient database loaded');
+        } catch (e) {
+          debugPrint('Ingredient database error: $e');
+          _updateStatus('Error loading database, will try to continue');
+        }
+
+        setState(() {
+          _initialized = true;
+          _statusMessage = 'Ready to proceed with limited functionality';
+        });
+
+        // Navigate to the Firebase setup screen after a delay
+        Future.delayed(const Duration(seconds: 3), () {
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                  builder: (context) => const FirebaseSetupScreen()),
+            );
+          }
+        });
+        return;
+      }
 
       // Try Firebase initialization but don't block if it fails
       try {
-        if (!Provider.of<FirebaseService>(context, listen: false)
-            .isUserSignedIn) {
-          await Provider.of<FirebaseService>(context, listen: false)
+        final firebaseService =
+            Provider.of<FirebaseService>(context, listen: false);
+        if (!firebaseService.isUserSignedIn) {
+          await firebaseService
               .signInAnonymously()
               .timeout(const Duration(seconds: 5));
           _updateStatus('Firebase initialized successfully');
         }
       } catch (e) {
-        debugPrint('Firebase initialization error: $e');
-        _updateStatus('Continuing without Firebase...');
+        debugPrint('Firebase authentication error: $e');
+        _updateStatus('Continuing without Firebase authentication...');
       }
 
       // Initialize ingredient database
@@ -206,20 +248,27 @@ class _SplashScreenState extends State<SplashScreen>
               padding: const EdgeInsets.only(bottom: 40),
               child: Column(
                 children: [
-                  const SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 3,
-                    ),
-                  ),
+                  _hasFirebaseError
+                      ? const Icon(
+                          Icons.warning_amber_rounded,
+                          size: 40,
+                          color: Colors.amber,
+                        )
+                      : const SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                        ),
                   const SizedBox(height: 16),
                   Text(
                     _statusMessage,
                     style: AppTheme.captionStyle.copyWith(
                       color: Colors.white.withOpacity(0.8),
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),

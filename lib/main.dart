@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'screens/splash_screen.dart';
 import 'utils/constants.dart';
 import 'utils/theme.dart';
 import 'services/ingredient_analyzer_service.dart';
 import 'services/ocr_service.dart';
 import 'services/firebase_service.dart';
+import 'services/firebase_config_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    await Firebase.initializeApp();
-    print('Firebase initialized successfully');
+    // Initialize Firebase with the proper options
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint('✅ Firebase initialized successfully!');
   } catch (e) {
-    print('Failed to initialize Firebase: $e');
-    // Continue without Firebase for development/testing
+    debugPrint('❌ Firebase initialization error: $e');
+    // Continue without Firebase
   }
 
   runApp(const MyApp());
@@ -29,6 +34,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider<FirebaseConfigService>(
+          create: (_) => FirebaseConfigService(),
+        ),
         Provider<IngredientAnalyzerService>(
           create: (_) => IngredientAnalyzerService(),
         ),
@@ -36,7 +44,9 @@ class MyApp extends StatelessWidget {
           create: (_) => OcrService(),
           dispose: (_, service) => service.dispose(),
         ),
-        Provider<FirebaseService>(create: (_) => FirebaseService()),
+        Provider<FirebaseService>(
+          create: (_) => FirebaseService(),
+        ),
       ],
       child: MaterialApp(
         title: AppConstants.appName,
