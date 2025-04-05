@@ -25,7 +25,7 @@ A Flutter application that helps users analyze skincare and cosmetic products fo
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/skinsafe_analyzer.git
+   git clone https://github.com/arslanyousaf12/skinsafe_analyzer.git
    cd skinsafe_analyzer
    ```
 

@@ -1,0 +1,224 @@
+{
+  "water": {
+    "name": "Water",
+    "description": "The most common ingredient in skincare products. It serves as a solvent for other ingredients and helps hydrate the skin.",
+    "riskLevel": "Safe",
+    "concerns": [],
+    "alternatives": []
+  },
+  "glycerin": {
+    "name": "Glycerin",
+    "description": "A humectant that draws moisture to the skin, providing hydration and improving skin barrier function.",
+    "riskLevel": "Safe",
+    "concerns": [],
+    "alternatives": []
+  },
+  "sodium lauryl sulfate": {
+    "name": "Sodium Lauryl Sulfate",
+    "description": "A cleansing agent and surfactant found in many personal care products. It creates the foaming action in shampoos and cleansers.",
+    "riskLevel": "Caution",
+    "concerns": [
+      "May cause skin irritation",
+      "Can be drying to skin and hair",
+      "Potential allergen for sensitive individuals"
+    ],
+    "alternatives": ["Sodium Coco Sulfate", "Coco Betaine", "Decyl Glucoside"]
+  },
+  "fragrance": {
+    "name": "Fragrance",
+    "description": "A blend of chemicals that gives products a distinctive scent. Companies aren't required to disclose specific ingredients in fragrances.",
+    "riskLevel": "Caution",
+    "concerns": [
+      "Potential allergen",
+      "Can cause skin irritation and sensitization",
+      "May trigger respiratory issues in some individuals"
+    ],
+    "alternatives": ["Essential oils (specified)", "Fragrance-free products", "Products labeled 'unscented'"]
+  },
+  "parabens": {
+    "name": "Parabens",
+    "description": "Preservatives used in cosmetics and personal care products to prevent bacterial growth. Common types include methylparaben, propylparaben, and butylparaben.",
+    "riskLevel": "Unsafe",
+    "concerns": [
+      "Potential hormone disruption",
+      "Linked to breast cancer in some studies",
+      "May affect reproductive system"
+    ],
+    "alternatives": ["Phenoxyethanol", "Sodium benzoate", "Potassium sorbate", "Benzyl alcohol"]
+  },
+  "retinol": {
+    "name": "Retinol",
+    "description": "A vitamin A derivative used in anti-aging products. It promotes cell turnover and collagen production.",
+    "riskLevel": "Caution",
+    "concerns": [
+      "Can cause irritation and dryness",
+      "Increases sun sensitivity",
+      "Not recommended during pregnancy"
+    ],
+    "alternatives": ["Bakuchiol", "Rosehip oil", "Peptides", "Niacinamide"]
+  },
+  "vitamin e": {
+    "name": "Vitamin E (Tocopherol)",
+    "description": "An antioxidant that protects the skin from free radicals and environmental damage. Also serves as a natural preservative.",
+    "riskLevel": "Safe",
+    "concerns": [],
+    "alternatives": []
+  },
+  "niacinamide": {
+    "name": "Niacinamide (Vitamin B3)",
+    "description": "A form of vitamin B3 that helps improve skin texture, reduce pore appearance, and strengthen the skin barrier.",
+    "riskLevel": "Safe",
+    "concerns": [],
+    "alternatives": []
+  },
+  "hyaluronic acid": {
+    "name": "Hyaluronic Acid",
+    "description": "A powerful humectant that can hold up to 1000 times its weight in water, providing deep hydration to the skin.",
+    "riskLevel": "Safe",
+    "concerns": [],
+    "alternatives": []
+  },
+  "formaldehyde": {
+    "name": "Formaldehyde",
+    "description": "A preservative used in some cosmetics and personal care products, often released by other preservatives like DMDM hydantoin.",
+    "riskLevel": "Unsafe",
+    "concerns": [
+      "Known carcinogen",
+      "Skin irritant and allergen",
+      "Can cause respiratory issues",
+      "May trigger asthma attacks"
+    ],
+    "alternatives": ["Phenoxyethanol", "Benzyl alcohol", "Sodium benzoate", "Plant-derived preservative systems"]
+  },
+  "phthalates": {
+    "name": "Phthalates",
+    "description": "A group of chemicals used to increase flexibility and soften plastics. Often found in fragranced products.",
+    "riskLevel": "Unsafe",
+    "concerns": [
+      "Endocrine disruptors",
+      "May affect reproductive development",
+      "Possible links to asthma and allergies"
+    ],
+    "alternatives": [
+      "Phthalate-free products",
+      "Natural essential oils (with caution)"
+    ]
+  },
+  "triclosan": {
+    "name": "Triclosan",
+    "description": "An antibacterial and antifungal agent used in some personal care products to reduce bacterial contamination.",
+    "riskLevel": "Unsafe",
+    "concerns": [
+      "Potential hormone disruption",
+      "May contribute to antibiotic resistance",
+      "Environmental toxin",
+      "Linked to allergies and asthma"
+    ],
+    "alternatives": ["Tea tree oil", "Essential oils with antibacterial properties", "Phenoxyethanol"]
+  },
+  "oxybenzone": {
+    "name": "Oxybenzone",
+    "description": "A chemical sunscreen ingredient that absorbs UV radiation to protect the skin from sun damage.",
+    "riskLevel": "Unsafe",
+    "concerns": [
+      "Potential hormone disruption",
+      "High rate of skin allergies",
+      "Harmful to coral reefs and marine ecosystems",
+      "May disrupt thyroid function"
+    ],
+    "alternatives": ["Zinc oxide", "Titanium dioxide", "Mineral sunscreens", "Avobenzone"]
+  },
+  "petrolatum": {
+    "name": "Petrolatum (Petroleum Jelly)",
+    "description": "A semi-solid mixture of hydrocarbons used as a barrier to lock in moisture.",
+    "riskLevel": "Caution",
+    "concerns": [
+      "May be contaminated with harmful impurities if not properly refined",
+      "Can clog pores in some individuals"
+    ],
+    "alternatives": [
+      "Shea butter",
+      "Cocoa butter",
+      "Plant-based oils and butters"
+    ]
+  },
+  "salicylic acid": {
+    "name": "Salicylic Acid",
+    "description": "A beta hydroxy acid (BHA) that helps exfoliate the skin and clear pores. Commonly used in acne treatments.",
+    "riskLevel": "Caution",
+    "concerns": [
+      "May cause irritation and dryness",
+      "Should be avoided during pregnancy",
+      "Increases sun sensitivity"
+    ],
+    "alternatives": ["Mandelic acid", "Lactic acid", "Azelaic acid", "Tea tree oil"]
+  },
+  "hydroquinone": {
+    "name": "Hydroquinone",
+    "description": "A skin-lightening agent used to reduce hyperpigmentation, age spots, and other forms of discoloration.",
+    "riskLevel": "Unsafe",
+    "concerns": [
+      "Banned or restricted in many countries",
+      "Potential carcinogen with long-term use",
+      "Can cause severe skin irritation and sensitivity",
+      "Risk of ochronosis (blue-black pigmentation)"
+    ],
+    "alternatives": ["Vitamin C", "Alpha arbutin", "Kojic acid", "Licorice extract", "Niacinamide"]
+  },
+  "titanium dioxide": {
+    "name": "Titanium Dioxide",
+    "description": "A mineral sunscreen ingredient that reflects and scatters UV radiation to protect skin from sun damage.",
+    "riskLevel": "Safe",
+    "concerns": [],
+    "alternatives": []
+  },
+  "zinc oxide": {
+    "name": "Zinc Oxide",
+    "description": "A mineral that protects skin from both UVA and UVB rays by reflecting and scattering sunlight.",
+    "riskLevel": "Safe",
+    "concerns": [],
+    "alternatives": []
+  },
+  "talc": {
+    "name": "Talc",
+    "description": "A mineral used in powders and makeup products to absorb moisture and provide a smooth feel.",
+    "riskLevel": "Caution",
+    "concerns": [
+      "May be contaminated with asbestos if not properly purified",
+      "Inhalation risk when used in loose powders"
+    ],
+    "alternatives": [
+      "Cornstarch",
+      "Arrowroot powder",
+      "Rice powder"
+    ]
+  },
+  "phenoxyethanol": {
+    "name": "Phenoxyethanol",
+    "description": "A preservative used to prevent bacterial growth in cosmetic products and skincare formulations.",
+    "riskLevel": "Caution",
+    "concerns": [
+      "May cause irritation in high concentrations",
+      "Potential allergen for sensitive individuals"
+    ],
+    "alternatives": ["Sodium benzoate", "Potassium sorbate", "Natural preservative systems"]
+  },
+  "alcohol denat": {
+    "name": "Alcohol Denat. (Denatured Alcohol)",
+    "description": "A type of alcohol used as a solvent and to improve product absorption. It can also provide a cooling sensation.",
+    "riskLevel": "Caution",
+    "concerns": [
+      "Can be drying and irritating",
+      "May disrupt skin barrier with frequent use",
+      "Not recommended for sensitive or dry skin"
+    ],
+    "alternatives": ["Witch hazel", "Propanediol", "Glycerin", "Alcohol-free products"]
+  },
+  "aloe vera": {
+    "name": "Aloe Vera",
+    "description": "A natural plant extract with soothing, healing, and moisturizing properties. Often used for sunburns and irritated skin.",
+    "riskLevel": "Safe",
+    "concerns": [],
+    "alternatives": []
+  }
+}
