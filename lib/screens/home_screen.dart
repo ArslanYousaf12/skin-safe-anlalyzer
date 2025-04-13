@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../utils/constants.dart';
 import '../utils/theme.dart';
 import '../widgets/input_methods_widget.dart';
@@ -10,6 +11,7 @@ import '../services/firebase_service.dart';
 import '../models/ingredient.dart';
 import '../models/product.dart';
 import '../models/safety_report.dart';
+import '../blocs/input_method/input_method.dart';
 import 'analysis_result_screen.dart';
 import 'history_screen.dart';
 
@@ -41,22 +43,28 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body:
-          _isLoading
-              ? _buildLoadingIndicator()
-              : SingleChildScrollView(
+      body: BlocListener<InputMethodBloc, InputMethodState>(
+        listener: (context, state) {
+          if (state is ProductNameSearched) {
+            _handleProductNameSearch(state.productName);
+          } else if (state is IngredientsExtracted) {
+            _handleIngredientsExtracted(state.ingredients);
+          } else if (state is ProductImageCaptured) {
+            _handleProductImageCaptured(state.imageFile);
+          }
+        },
+        child: _isLoading
+            ? _buildLoadingIndicator()
+            : SingleChildScrollView(
                 child: Column(
                   children: [
                     _buildHeader(),
-                    InputMethodsWidget(
-                      onTextSearch: _handleProductNameSearch,
-                      onIngredientsExtracted: _handleIngredientsExtracted,
-                      onImageCaptured: _handleProductImageCaptured,
-                    ),
+                    const InputMethodsWidget(),
                     _buildDisclaimerSection(),
                   ],
                 ),
               ),
+      ),
     );
   }
 
@@ -139,28 +147,27 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showAboutDialog() {
     showDialog(
       context: context,
-      builder:
-          (context) => AboutDialog(
-            applicationName: AppConstants.appName,
-            applicationVersion: AppConstants.appVersion,
-            applicationIcon: const Icon(
-              Icons.health_and_safety,
-              size: 48,
-              color: AppTheme.primaryColor,
-            ),
-            children: [
-              const SizedBox(height: AppConstants.defaultPadding),
-              Text(AppConstants.appDescription, style: AppTheme.bodyStyle),
-              const SizedBox(height: AppConstants.defaultPadding),
-              const Text(
-                'This app is designed to help users make informed decisions about skincare and cosmetic products by analyzing ingredients for potential harmful effects.',
-              ),
-              const SizedBox(height: AppConstants.defaultPadding),
-              const Text(
-                'Data provided by Environmental Working Group (EWG) and other trusted sources.',
-              ),
-            ],
+      builder: (context) => AboutDialog(
+        applicationName: AppConstants.appName,
+        applicationVersion: AppConstants.appVersion,
+        applicationIcon: const Icon(
+          Icons.health_and_safety,
+          size: 48,
+          color: AppTheme.primaryColor,
+        ),
+        children: [
+          const SizedBox(height: AppConstants.defaultPadding),
+          Text(AppConstants.appDescription, style: AppTheme.bodyStyle),
+          const SizedBox(height: AppConstants.defaultPadding),
+          const Text(
+            'This app is designed to help users make informed decisions about skincare and cosmetic products by analyzing ingredients for potential harmful effects.',
           ),
+          const SizedBox(height: AppConstants.defaultPadding),
+          const Text(
+            'Data provided by Environmental Working Group (EWG) and other trusted sources.',
+          ),
+        ],
+      ),
     );
   }
 
@@ -284,8 +291,8 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       // Analyze each ingredient
       final analyzerService = IngredientAnalyzerService();
-      final List<Ingredient> analyzedIngredients = await analyzerService
-          .analyzeIngredients(ingredientNames);
+      final List<Ingredient> analyzedIngredients =
+          await analyzerService.analyzeIngredients(ingredientNames);
 
       // Create product model
       final product = Product(

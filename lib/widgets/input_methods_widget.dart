@@ -1,42 +1,54 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../utils/constants.dart';
 import '../utils/theme.dart';
-import '../services/ocr_service.dart';
 import '../screens/camera_screen.dart';
+import '../blocs/input_method/input_method.dart';
 
 class InputMethodsWidget extends StatelessWidget {
-  final Function(String) onTextSearch;
-  final Function(List<String>) onIngredientsExtracted;
-  final Function(File) onImageCaptured;
-
-  const InputMethodsWidget({
-    super.key,
-    required this.onTextSearch,
-    required this.onIngredientsExtracted,
-    required this.onImageCaptured,
-  });
+  const InputMethodsWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(AppConstants.defaultPadding),
-          child: Text(
-            'How would you like to analyze your product?',
-            style: AppTheme.subheadingStyle,
-            textAlign: TextAlign.center,
+    return BlocListener<InputMethodBloc, InputMethodState>(
+      listener: (context, state) {
+        if (state is InputMethodLoading) {
+          // Show loading indicator if needed
+          _showLoadingDialog(context);
+        } else if (state is InputMethodError) {
+          // Close loading dialog if open and show error
+          Navigator.of(context, rootNavigator: true)
+              .popUntil((route) => route.isFirst);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        } else {
+          // Close loading dialog if open for all other states
+          if (Navigator.of(context, rootNavigator: true).canPop()) {
+            Navigator.of(context, rootNavigator: true).pop();
+          }
+        }
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            child: Text(
+              'How would you like to analyze your product?',
+              style: AppTheme.subheadingStyle,
+              textAlign: TextAlign.center,
+            ),
           ),
-        ),
-        const SizedBox(height: AppConstants.smallPadding),
-        _buildSearchByNameTile(context),
-        _buildScanProductTile(context),
-        _buildScanIngredientsTile(context),
-        _buildUploadImageTile(context),
-      ],
+          const SizedBox(height: AppConstants.smallPadding),
+          _buildSearchByNameTile(context),
+          _buildScanProductTile(context),
+          _buildScanIngredientsTile(context),
+          _buildUploadImageTile(context),
+        ],
+      ),
     );
   }
 
@@ -83,6 +95,7 @@ class InputMethodsWidget extends StatelessWidget {
       title: 'Upload from Gallery',
       subtitle: 'Select an existing photo from your device',
       onTap: () {
+        context.read<InputMethodBloc>().add(const UploadGalleryImageEvent());
         _pickImageFromGallery(context);
       },
     );
@@ -135,36 +148,37 @@ class InputMethodsWidget extends StatelessWidget {
 
     return showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Search Product'),
-            content: TextField(
-              controller: controller,
-              decoration: AppTheme.inputDecoration(
-                'Product Name',
-                hint: 'Enter product name',
-              ),
-              textCapitalization: TextCapitalization.words,
-              autofocus: true,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  if (controller.text.isNotEmpty) {
-                    Navigator.pop(context);
-                    onTextSearch(controller.text.trim());
-                  }
-                },
-                child: const Text('Search'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Search Product'),
+        content: TextField(
+          controller: controller,
+          decoration: AppTheme.inputDecoration(
+            'Product Name',
+            hint: 'Enter product name',
           ),
+          textCapitalization: TextCapitalization.words,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                Navigator.pop(context);
+                context
+                    .read<InputMethodBloc>()
+                    .add(SearchByProductNameEvent(controller.text.trim()));
+              }
+            },
+            child: const Text('Search'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -175,20 +189,19 @@ class InputMethodsWidget extends StatelessWidget {
     final File? imageFile = await Navigator.push<File>(
       context,
       MaterialPageRoute(
-        builder:
-            (context) => CameraScreen(
-              onImageCaptured: (file) => Navigator.pop(context, file),
-            ),
+        builder: (context) => CameraScreen(
+          onImageCaptured: (file) => Navigator.pop(context, file),
+        ),
       ),
     );
 
     if (imageFile != null) {
       if (isProduct) {
-        // Product image was captured
-        onImageCaptured(imageFile);
+        // Product image was captured, send event to bloc
+        context.read<InputMethodBloc>().add(ScanProductEvent(imageFile));
       } else {
-        // Ingredients image was captured
-        _processIngredientsImage(context, imageFile);
+        // Ingredients image was captured, send event to bloc
+        context.read<InputMethodBloc>().add(ScanIngredientsEvent(imageFile));
       }
     }
   }
@@ -217,70 +230,36 @@ class InputMethodsWidget extends StatelessWidget {
   ) async {
     return showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Process Image'),
-            content: const Text('How would you like to process this image?'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  onImageCaptured(imageFile);
-                },
-                child: const Text('As Product Image'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _processIngredientsImage(context, imageFile);
-                },
-                child: const Text('Extract Ingredients'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Process Image'),
+        content: const Text('How would you like to process this image?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<InputMethodBloc>().add(ScanProductEvent(imageFile));
+            },
+            child: const Text('As Product Image'),
           ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context
+                  .read<InputMethodBloc>()
+                  .add(ProcessIngredientImageEvent(imageFile));
+            },
+            child: const Text('Extract Ingredients'),
+          ),
+        ],
+      ),
     );
   }
 
-  Future<void> _processIngredientsImage(
-    BuildContext context,
-    File imageFile,
-  ) async {
-    // Show loading indicator
+  void _showLoadingDialog(BuildContext context) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
-
-    try {
-      // Extract text from image using OCR
-      final ocrService = OcrService();
-      final extractedText = await ocrService.extractTextFromImage(imageFile);
-
-      // Extract ingredients from the text
-      final ingredients = ocrService.extractIngredientsFromText(extractedText);
-
-      // Close loading dialog
-      Navigator.pop(context);
-
-      if (ingredients.isNotEmpty) {
-        onIngredientsExtracted(ingredients);
-      } else {
-        // Show error if no ingredients found
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'No ingredients found in the image. Try a clearer photo.',
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      // Close loading dialog and show error
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error processing image: ${e.toString()}')),
-      );
-    }
   }
 }
